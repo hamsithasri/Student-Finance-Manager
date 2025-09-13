@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Financial Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); }
+        .card-shadow { box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+        .pulse-animation { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        .glass-effect { backdrop-filter: blur(10px); background: rgba(30, 41, 59, 0.8); }
+        .neon-glow { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
+        .professional-border { border: 1px solid rgba(71, 85, 105, 0.3); }
+    </style>
+</head>
+<body class="bg-slate-900 min-h-screen text-gray-100">
+    <!-- Header -->
+    <header class="gradient-bg text-white p-6 card-shadow">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center neon-glow">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                </div>
+                <h1 class="text-2xl font-bold">FinanceAI Pro</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <span class="text-sm opacity-90">Total Balance</span>
+                <span class="text-2xl font-bold" id="totalBalance">$12,450.00</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto p-6 space-y-6">
+        <!-- Quick Actions & Alerts -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Add Expense -->
+            <div class="bg-slate-800 rounded-xl p-6 card-shadow professional-border">
+                <h3 class="text-lg font-semibold mb-4 flex items-center text-gray-100">
+                    <svg class="w-5 h-5 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                    </svg>
+                    Add Transaction
+                </h3>
+                <div class="space-y-3">
+                    <input type="number" id="expenseAmount" placeholder="Amount" class="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-100 placeholder-gray-400">
+                    <input type="text" id="expenseDescription" placeholder="Description" class="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-100 placeholder-gray-400">
+                    <button onclick="addExpense()" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium neon-glow">
+                        Process & Categorize
+                    </button>
+                </div>
+            </div>
+
+            <!-- Budget Alert -->
+            <div class="bg-slate-800 rounded-xl p-6 card-shadow professional-border">
+                <h3 class="text-lg font-semibold mb-4 flex items-center text-gray-100">
+                    <svg class="w-5 h-5 mr-2 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                    </svg>
+                    Budget Monitoring
+                </h3>
+                <div id="budgetAlerts" class="space-y-2">
+                    <div class="bg-red-900/30 border-l-4 border-red-400 p-3 rounded">
+                        <p class="text-sm text-red-300">Dining: 85% of budget utilized</p>
+                    </div>
+                    <div class="bg-yellow-900/30 border-l-4 border-yellow-400 p-3 rounded">
+                        <p class="text-sm text-yellow-300">Shopping: 70% of budget utilized</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Insights -->
+            <div class="bg-slate-800 rounded-xl p-6 card-shadow professional-border">
+                <h3 class="text-lg font-semibold mb-4 flex items-center text-gray-100">
+                    <svg class="w-5 h-5 mr-2 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                    </svg>
+                    Intelligence Analytics
+                </h3>
+                <div class="space-y-3">
+                    <div class="bg-blue-900/30 p-3 rounded-lg border border-blue-700/30">
+                        <p class="text-sm text-blue-300">Dining expenditure increased 15% this period</p>
+                    </div>
+                    <div class="bg-green-900/30 p-3 rounded-lg border border-green-700/30">
+                        <p class="text-sm text-green-300">Savings trajectory remains optimal</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Dashboard -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Spending Analysis Chart -->
+            <div class="bg-slate-800 rounded-xl p-6 card-shadow professional-border">
+                <h3 class="text-xl font-semibold mb-4 flex items-center text-gray-100">
+                    <svg class="w-6 h-6 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    Predictive Analytics Dashboard
+                </h3>
+                <canvas id="spendingChart" width="400" height="200"></canvas>
+            </div>
+
+            <!-- Category Breakdown -->
+            <div class="bg-slate-800 rounded-xl p-6 card-shadow professional-border">
+                <h3 class="text-xl font-semibold mb-4 flex items-center text-gray-100">
+                    <svg class="w-6 h-6 mr-2 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                    </svg>
+                    Automated Categorization
+                </h3>
+                <canvas id="categoryChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- Goals & Recent Transactions -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Goal Tracking -->
+            <div class="bg-slate-800 rounded-xl p-6 card-shadow professional-border">
+                <h3 class="text-xl font-semibold mb-4 flex items-center text-gray-100">
+                    <svg class="w-6 h-6 mr-2 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+                    </svg>
+                    Financial Objectives
+                </h3>
+                <div class="space-y-4" id="goalsContainer">
+                    <div class="goal-item">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="font-medium text-gray-100">Emergency Fund</span>
+                            <span class="text-sm text-gray-400">$3,200 / $5,000</span>
+                        </div>
+                        <div class="w-full bg-slate-700 rounded-full h-3">
+                            <div class="bg-emerald-500 h-3 rounded-full neon-glow" style="width: 64%"></div>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-1">64% complete • 8 months remaining</p>
+                    </div>
+                    <div class="goal-item">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="font-medium text-gray-100">Vacation Fund</span>
+                            <span class="text-sm text-gray-400">$1,800 / $3,000</span>
+                        </div>
+                        <div class="w-full bg-slate-700 rounded-full h-3">
+                            <div class="bg-blue-500 h-3 rounded-full neon-glow" style="width: 60%"></div>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-1">60% complete • 4 months remaining</p>
+                    </div>
+                </div>
+                <button onclick="addGoal()" class="mt-4 w-full bg-slate-700 text-gray-300 py-2 rounded-lg hover:bg-slate-600 transition-colors border border-slate-600">
+                    + Add New Objective
+                </button>
+            </div>
+
+            <!-- Recent Transactions -->
+            <div class="bg-slate-800 rounded-xl p-6 card-shadow professional-border">
+                <h3 class="text-xl font-semibold mb-4 flex items-center text-gray-100">
+                    <svg class="w-6 h-6 mr-2 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                    </svg>
+                    Transaction History
+                </h3>
+                <div class="space-y-3" id="transactionsList">
+                    <div class="flex justify-between items-center p-3 bg-slate-700 rounded-lg border border-slate-600">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-orange-500/20 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-100">Pizza Palace</p>
+                                <p class="text-sm text-gray-400">Dining • Auto-categorized</p>
+                            </div>
+                        </div>
+                        <span class="font-semibold text-red-400">-$24.50</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-slate-700 rounded-lg border border-slate-600">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-100">Shell Gas Station</p>
+                                <p class="text-sm text-gray-400">Transportation • Auto-categorized</p>
+                            </div>
+                        </div>
+                        <span class="font-semibold text-red-400">-$45.20</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-slate-700 rounded-lg border border-slate-600">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-100">Amazon Purchase</p>
+                                <p class="text-sm text-gray-400">Shopping • Auto-categorized</p>
+                            </div>
+                        </div>
+                        <span class="font-semibold text-red-400">-$89.99</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Budget Overview -->
+        <div class="bg-slate-800 rounded-xl p-6 card-shadow professional-border">
+            <h3 class="text-xl font-semibold mb-4 flex items-center text-gray-100">
+                <svg class="w-6 h-6 mr-2 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                </svg>
+                Budget Allocation Overview
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="budget-category">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="font-medium text-gray-100">Dining</span>
+                        <span class="text-sm text-gray-400">$425 / $500</span>
+                    </div>
+                    <div class="w-full bg-slate-700 rounded-full h-2">
+                        <div class="bg-red-500 h-2 rounded-full" style="width: 85%"></div>
+                    </div>
+                </div>
+                <div class="budget-category">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="font-medium text-gray-100">Shopping</span>
+                        <span class="text-sm text-gray-400">$350 / $500</span>
+                    </div>
+                    <div class="w-full bg-slate-700 rounded-full h-2">
+                        <div class="bg-yellow-500 h-2 rounded-full" style="width: 70%"></div>
+                    </div>
+                </div>
+                <div class="budget-category">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="font-medium text-gray-100">Transportation</span>
+                        <span class="text-sm text-gray-400">$180 / $300</span>
+                    </div>
+                    <div class="w-full bg-slate-700 rounded-full h-2">
+                        <div class="bg-emerald-500 h-2 rounded-full" style="width: 60%"></div>
+                    </div>
+                </div>
+                <div class="budget-category">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="font-medium text-gray-100">Entertainment</span>
+                        <span class="text-sm text-gray-400">$120 / $200</span>
+                    </div>
+                    <div class="w-full bg-slate-700 rounded-full h-2">
+                        <div class="bg-blue-500 h-2 rounded-full" style="width: 60%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Goal Modal -->
+    <div id="goalModal" class="fixed inset-0 bg-black bg-opacity-70 hidden items-center justify-center z-50">
+        <div class="bg-slate-800 rounded-xl p-6 w-full max-w-md mx-4 professional-border">
+            <h3 class="text-xl font-semibold mb-4 text-gray-100">Add New Objective</h3>
+            <div class="space-y-4">
+                <input type="text" id="goalName" placeholder="Objective name" class="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-100 placeholder-gray-400">
+                <input type="number" id="goalTarget" placeholder="Target amount" class="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-100 placeholder-gray-400">
+                <input type="number" id="goalCurrent" placeholder="Current amount" class="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-100 placeholder-gray-400">
+                <div class="flex space-x-3">
+                    <button onclick="saveGoal()" class="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors neon-glow">Save Objective</button>
+                    <button onclick="closeGoalModal()" class="flex-1 bg-slate-700 text-gray-300 py-3 rounded-lg hover:bg-slate-600 transition-colors border border-slate-600">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample data and state
+        let expenses = [
+            { amount: 24.50, description: "Pizza Palace", category: "Dining", date: new Date() },
+            { amount: 45.20, description: "Shell Gas Station", category: "Transportation", date: new Date() },
+            { amount: 89.99, description: "Amazon Purchase", category: "Shopping", date: new Date() }
+        ];
+
+        let goals = [
+            { name: "Emergency Fund", target: 5000, current: 3200 },
+            { name: "Vacation Fund", target: 3000, current: 1800 }
+        ];
+
+        // AI Expense Categorization
+        function categorizeExpense(description) {
+            const categories = {
+                'Dining': ['pizza', 'restaurant', 'food', 'cafe', 'starbucks', 'mcdonalds'],
+                'Transportation': ['gas', 'uber', 'taxi', 'bus', 'train', 'parking'],
+                'Shopping': ['amazon', 'store', 'mall', 'target', 'walmart'],
+                'Entertainment': ['movie', 'netflix', 'spotify', 'game', 'concert'],
+                'Utilities': ['electric', 'water', 'internet', 'phone', 'cable'],
+                'Healthcare': ['doctor', 'pharmacy', 'hospital', 'medical']
+            };
+
+            const desc = description.toLowerCase();
+            for (const [category, keywords] of Object.entries(categories)) {
+                if (keywords.some(keyword => desc.includes(keyword))) {
+                    return category;
+                }
+            }
+            return 'Other';
+        }
+
+        // Add expense with AI categorization
+        function addExpense() {
+            const amount = parseFloat(document.getElementById('expenseAmount').value);
+            const description = document.getElementById('expenseDescription').value;
+
+            if (!amount || !description) {
+                alert('Please fill in both amount and description');
+                return;
+            }
+
+            const category = categorizeExpense(description);
+            const expense = {
+                amount: amount,
+                description: description,
+                category: category,
+                date: new Date()
+            };
+
+            expenses.unshift(expense);
+            
+            // Clear inputs
+            document.getElementById('expenseAmount').value = '';
+            document.getElementById('expenseDescription').value = '';
+
+            // Update displays
+            updateTransactionsList();
+            updateCharts();
+            checkBudgetAlerts();
+            
+            // Show success message
+            showNotification(`Expense added and categorized as ${category}!`, 'success');
+        }
+
+        // Update transactions list
+        function updateTransactionsList() {
+            const container = document.getElementById('transactionsList');
+            const categoryIcons = {
+                'Dining': '<svg class="w-5 h-5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path></svg>',
+                'Transportation': '<svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>',
+                'Shopping': '<svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>',
+                'Entertainment': '<svg class="w-5 h-5 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2M7 4h10M7 4l-2 16h14L17 4"></path></svg>',
+                'Utilities': '<svg class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>',
+                'Healthcare': '<svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>',
+                'Other': '<svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>'
+            };
+
+            const categoryColors = {
+                'Dining': 'bg-orange-500/20',
+                'Transportation': 'bg-blue-500/20',
+                'Shopping': 'bg-purple-500/20',
+                'Entertainment': 'bg-pink-500/20',
+                'Utilities': 'bg-yellow-500/20',
+                'Healthcare': 'bg-red-500/20',
+                'Other': 'bg-gray-500/20'
+            };
+
+            container.innerHTML = expenses.slice(0, 5).map(expense => `
+                <div class="flex justify-between items-center p-3 bg-slate-700 rounded-lg border border-slate-600">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 ${categoryColors[expense.category] || 'bg-gray-500/20'} rounded-lg flex items-center justify-center">
+                            ${categoryIcons[expense.category] || categoryIcons['Other']}
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-100">${expense.description}</p>
+                            <p class="text-sm text-gray-400">${expense.category} • Auto-categorized</p>
+                        </div>
+                    </div>
+                    <span class="font-semibold text-red-400">-$${expense.amount.toFixed(2)}</span>
+                </div>
+            `).join('');
+        }
+
+        // Check budget alerts
+        function checkBudgetAlerts() {
+            const budgets = {
+                'Dining': 500,
+                'Shopping': 500,
+                'Transportation': 300,
+                'Entertainment': 200
+            };
+
+            const spending = {};
+            expenses.forEach(expense => {
+                spending[expense.category] = (spending[expense.category] || 0) + expense.amount;
+            });
+
+            const alertsContainer = document.getElementById('budgetAlerts');
+            const alerts = [];
+
+            Object.entries(budgets).forEach(([category, budget]) => {
+                const spent = spending[category] || 0;
+                const percentage = (spent / budget) * 100;
+                
+                if (percentage >= 80) {
+                    alerts.push({
+                        category,
+                        percentage: Math.round(percentage),
+                        type: 'danger'
+                    });
+                } else if (percentage >= 70) {
+                    alerts.push({
+                        category,
+                        percentage: Math.round(percentage),
+                        type: 'warning'
+                    });
+                }
+            });
+
+            if (alerts.length === 0) {
+                alertsContainer.innerHTML = '<div class="bg-green-900/30 border-l-4 border-green-400 p-3 rounded"><p class="text-sm text-green-300">All budgets operating within parameters</p></div>';
+            } else {
+                alertsContainer.innerHTML = alerts.map(alert => `
+                    <div class="bg-${alert.type === 'danger' ? 'red' : 'yellow'}-900/30 border-l-4 border-${alert.type === 'danger' ? 'red' : 'yellow'}-400 p-3 rounded">
+                        <p class="text-sm text-${alert.type === 'danger' ? 'red' : 'yellow'}-300">${alert.category}: ${alert.percentage}% of budget utilized</p>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Goal management
+        function addGoal() {
+            document.getElementById('goalModal').classList.remove('hidden');
+            document.getElementById('goalModal').classList.add('flex');
+        }
+
+        function closeGoalModal() {
+            document.getElementById('goalModal').classList.add('hidden');
+            document.getElementById('goalModal').classList.remove('flex');
+        }
+
+        function saveGoal() {
+            const name = document.getElementById('goalName').value;
+            const target = parseFloat(document.getElementById('goalTarget').value);
+            const current = parseFloat(document.getElementById('goalCurrent').value) || 0;
+
+            if (!name || !target) {
+                alert('Please fill in goal name and target amount');
+                return;
+            }
+
+            goals.push({ name, target, current });
+            updateGoalsDisplay();
+            closeGoalModal();
+            
+            // Clear inputs
+            document.getElementById('goalName').value = '';
+            document.getElementById('goalTarget').value = '';
+            document.getElementById('goalCurrent').value = '';
+            
+            showNotification('Goal added successfully!', 'success');
+        }
+
+        function updateGoalsDisplay() {
+            const container = document.getElementById('goalsContainer');
+            container.innerHTML = goals.map(goal => {
+                const percentage = Math.round((goal.current / goal.target) * 100);
+                const monthsRemaining = Math.ceil((goal.target - goal.current) / 200); // Assuming $200/month savings
+                
+                return `
+                    <div class="goal-item">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="font-medium text-gray-100">${goal.name}</span>
+                            <span class="text-sm text-gray-400">$${goal.current.toLocaleString()} / $${goal.target.toLocaleString()}</span>
+                        </div>
+                        <div class="w-full bg-slate-700 rounded-full h-3">
+                            <div class="bg-emerald-500 h-3 rounded-full neon-glow" style="width: ${percentage}%"></div>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-1">${percentage}% complete • ${monthsRemaining} months remaining</p>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Notification system
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 p-4 rounded-lg text-white z-50 ${type === 'success' ? 'bg-emerald-600' : 'bg-red-600'} neon-glow border border-slate-600`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Initialize charts
+        function initCharts() {
+            // Spending Analysis Chart
+            const spendingCtx = document.getElementById('spendingChart').getContext('2d');
+            new Chart(spendingCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Actual Spending',
+                        data: [2200, 2400, 2100, 2600, 2300, 2500],
+                        borderColor: '#3B82F6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: 'Predicted Spending',
+                        data: [null, null, null, null, null, 2500, 2400, 2300],
+                        borderColor: '#EF4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        borderDash: [5, 5],
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: '#e2e8f0'
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Monthly Spending Trends & Predictions',
+                            color: '#e2e8f0'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                color: '#94a3b8'
+                            },
+                            grid: {
+                                color: '#334155'
+                            }
+                        },
+                        y: {
+                            beginAtZero: false,
+                            ticks: {
+                                color: '#94a3b8',
+                                callback: function(value) {
+                                    return '$' + value;
+                                }
+                            },
+                            grid: {
+                                color: '#334155'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Category Chart
+            const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+            new Chart(categoryCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Dining', 'Shopping', 'Transportation', 'Entertainment', 'Other'],
+                    datasets: [{
+                        data: [425, 350, 180, 120, 200],
+                        backgroundColor: [
+                            '#EF4444',
+                            '#F59E0B',
+                            '#10B981',
+                            '#3B82F6',
+                            '#8B5CF6'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Spending by Category'
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateCharts() {
+            // In a real app, this would update the charts with new data
+            // For demo purposes, we'll just show a notification
+            console.log('Charts updated with new expense data');
+        }
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            initCharts();
+            updateTransactionsList();
+            updateGoalsDisplay();
+            checkBudgetAlerts();
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97e5aeb582fea7e4',t:'MTc1Nzc0NTkzNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
